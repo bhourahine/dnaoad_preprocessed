@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+type: software
+title: >-
+  Dual Numbers for Arbitrary Order Automatic
+  Differentiation
+message: >-
+  When publishing results obtained with DNAOAD,
+  please cite it using the metadata from
+  'preferred-citation'.
+contact:
+  - email: "@ "
+    name: ""
+url: https://github.com/fpenunuri/DNAOAD
+license: MIT
+authors:
+  - family-names: "Hourahine"
+    given-names: "Benjamin"
+    orcid: "https://orcid.org/0000-0002-7667-7101"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Hourahine"
+      given-names: "Benjamin"
+      orcid: "https://orcid.org/0000-0002-7667-7101"
+  doi: 10.1063/1.5143190
+  url: "https://doi.org/10.1063/1.5143190"
+  journal: "The Journal of Chemical Physics"
+  title: "DFTB+, a software package for efficient approximate density functional theory based atomistic simulations"
+  year: 2020
+  volume: 152
+  number: 12
+  pages: 124101
+
+Dual Numbers for Arbitrary Order Automatic Differentiation
+F. Peñuñuri, K. B. Cantún-Avila, R. Peón-Escalante
+
+arXiv:2501.04159v1 [math.NA] 7 Jan 2025

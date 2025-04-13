@@ -1,0 +1,92 @@
+name: Multiplatform CTest Fortran Build
+
+on: [push, pull_request]
+
+jobs:
+  gfortran-build-and-test:
+    name: ${{ matrix.os }} Fortran CTest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        config: [Debug]
+        version: [13]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install dependencies (Linux)
+      if: runner.os != 'Windows'
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install -y gcc-${{ matrix.version}} gfortran-${{ matrix.version }} g++-${{ matrix.version }}
+        sudo update-alternatives \
+          --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.version }} 100 \
+          --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${{ matrix.version }} \
+          --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.version }} \
+          --slave /usr/bin/gcov gcov /usr/bin/gcov-${{ matrix.version }}
+
+    - name: Configure with CMake
+      run: cmake -S . -B _build -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+
+    - name: Build
+      run: cmake --build _build --config ${{ matrix.config }}
+
+    - name: Run tests
+      run: ctest --test-dir _build --output-on-failure
+
+
+  intel-build-and-test:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        config: [RelWithDebInfo]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      FC: ifx
+      CMAKE_OPTIONS: >-
+        -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.x
+
+    - name: Setup Intel compiler
+      uses: rscohn2/setup-oneapi@v0
+      with:
+        components: |
+          ifx@2025.0.0
+
+    - name: Setup Intel environment
+      run: |
+        source /opt/intel/oneapi/setvars.sh
+        printenv >> ${GITHUB_ENV}
+        echo "FC=${FC}" >> ${GITHUB_ENV}
+
+    - name: Install requirements (pip)
+      run: pip3 install cmake ninja fypp
+
+    - name: Configure build
+      run: >-
+        cmake -B _build -G Ninja
+        -DCMAKE_INSTALL_PREFIX=${PWD}/${INSTALL_DIR}
+        ${CMAKE_OPTIONS}
+
+    - name: Build project
+      run: cmake --build _build -j
+
+    - name: Run regression tests
+      run: |
+        pushd _build
+        ctest -j --output-on-failure
+        popd
