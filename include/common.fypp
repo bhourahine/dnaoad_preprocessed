@@ -1,0 +1,129 @@
+#:if not defined('_COMMON_FYPP_')
+#:mute
+#:set _COMMON_FYPP_
+
+#! Routine NAME labels, main variable TYPE and abreviated LABEL
+#:set FLAVOURS = [('real', 'real', 'r'), ('cmplx', 'complex', 'c')]
+
+#! define an array of the compiler supported iso integers (INTMODEL),
+#! and a list of any unsupported types (DUMMYINTMODEL)
+
+#:if INT32
+#:if defined ('INTMODEL')
+#:set INTMODEL = INTMODEL + [("32")]
+#:else
+#:set INTMODEL = [("32")]
+#:endif
+#:else
+#:if defined ('DUMMYINTMODEL')
+#:set DUMMYINTMODEL = DUMMYINTMODEL + [("32")]
+#:else
+#:set DUMMYINTMODEL = [("32")]
+#:endif
+#:endif
+
+#:if INT64
+#:if defined ('INTMODEL')
+#:set INTMODEL = INTMODEL + [("64")]
+#:else
+#:set INTMODEL = [("64")]
+#:endif
+#:else
+#:if defined ('DUMMYINTMODEL')
+#:set DUMMYINTMODEL = DUMMYINTMODEL + [("64")]
+#:else
+#:set DUMMYINTMODEL = [("64")]
+#:endif
+#:endif
+
+
+#! define an array of the compiler supported iso reals (REALMODEL),
+#! and a list of any unsupported types (DUMMYREALMODEL)
+
+#:if REAL32
+#:if defined ('REALMODEL')
+#:set REALMODEL = REALMODEL + [("32")]
+#:else
+#:set REALMODEL = [("32")]
+#:endif
+#:else
+#:if defined ('DUMMYREALMODEL')
+#:set DUMMYREALMODEL = DUMMYREALMODEL + [("32")]
+#:else
+#:set DUMMYREALMODEL = [("32")]
+#:endif
+#:endif
+
+#:if REAL64
+#:if defined ('REALMODEL')
+#:set REALMODEL = REALMODEL + [("64")]
+#:else
+#:set REALMODEL = [("64")]
+#:endif
+#:else
+#:if defined ('DUMMYREALMODEL')
+#:set DUMMYREALMODEL = DUMMYREALMODEL + [("64")]
+#:else
+#:set DUMMYREALMODEL = [("64")]
+#:endif
+#:endif
+
+#:if REAL128
+#:if defined ('REALMODEL')
+#:set REALMODEL = REALMODEL + [("128")]
+#:else
+#:set REALMODEL = [("128")]
+#:endif
+#:else
+#:if defined ('DUMMYREALMODEL')
+#:set DUMMYREALMODEL = DUMMYREALMODEL + [("128")]
+#:else
+#:set DUMMYREALMODEL = [("128")]
+#:endif
+#:endif
+
+#! Test there are actual models provided by the compiler
+#:if not defined ('INTMODEL')
+  #:stop 'No suitable compiler supported ISO integer types!'
+#:endif
+#:if not defined ('REALMODEL')
+  #:stop 'No suitable compiler supported ISO real types!'
+#:endif
+
+#:if not defined ('DUMMYREALMODEL')
+#:set DUMMYREALMODEL = []
+#:endif
+#:if not defined ('DUMMYINTMODEL')
+#:set DUMMYINTMODEL = []
+#:endif
+
+
+#! Define a string containing the names of the iso_fortran_env types
+#! supported by the compiler
+#:set ISO_CONSTANTS = ""
+
+#:for bits in INTMODEL
+#:if ISO_CONSTANTS == ""
+#:set ISO_CONSTANTS = "int" + bits
+#:else
+#:set ISO_CONSTANTS = ISO_CONSTANTS + ", int" + bits
+#:endif
+#:endfor
+
+#:for bits in REALMODEL
+#:if ISO_CONSTANTS == ""
+#:set ISO_CONSTANTS = "real" + bits
+#:else
+#:set ISO_CONSTANTS = ISO_CONSTANTS + ", real" + bits
+#:endif
+#:endfor
+
+
+#! Define minimum and maximum numerical types for int and real
+#:set MIN_ISO_INT = "int"+INTMODEL[0]
+#:set MAX_ISO_INT = "int"+INTMODEL[-1]
+#:set MIN_ISO_REAL = "int"+REALMODEL[0]
+#:set MAX_ISO_REAL = "int"+REALMODEL[-1]
+
+#:endmute
+#:endif
