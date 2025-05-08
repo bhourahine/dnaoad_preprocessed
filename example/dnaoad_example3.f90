@@ -5,46 +5,28 @@
 program dnaoad_example2
   use iso_fortran_env, only : real64
   use dnaoad
-  use src_multivariablefunctions
+  use src_multivariablefunctions, only : jacobian
   implicit none
 
   integer, parameter :: prec = real64
   integer, parameter :: order = 5
-  complex(prec) :: v(3), q(3), fr(3), v5D(5)
-  complex(prec), allocatable :: H(:,:)
-  type(dual_cmplx64) :: fval
-  real :: t1, t2
+  integer, parameter :: nf = 3, mq= 4
+  integer :: ii
+  complex(prec) :: vec(mq), q(mq), Jmat(nf, mq), JV(nf), GV(3), Hmat(3,3)
+  complex(prec), parameter :: im = cmplx(0,1,kind=prec)
 
-  ! since a dualzn numbers is an allocatable entity, do not forget to
-  ! initialize it
+  vec(:) = [(1,0),(2,0),(3,0),(4,0)]
+  q(:) = vec / 10.0 + im
 
-  v(:) = [(1,0),(2,0),(3,0)]
-  q(:) = v / 10.0 + (0,1)
+  print*,"Jv using matmul"
+  Jmat = Jacobian(fvectest, q, nf)
+  JV = matmul(Jmat, vec)
+  do ii = 1, nf
+    write(*,*) JV(ii)
+  end do
+  write(*,*)
 
-  call cpu_time(t1)
-  fval = dnfscalar_dir(fstest, v, q, 1)
-  call cpu_time(t2)
 
-  write(*,*)fval%f
-
-  print*,"elapsed time (s):",t2-t1
-
-  call cpu_time(t1)
-  fr(:) = gradient(fstest, q)
-  call cpu_time(t2)
-
-  write(*,*)fr
-
-  print*,"elapsed time (s):",t2-t1
-
-  v5D(:) = (1,.5)
-  H = hessian(fstest, v5D)
-  block
-    integer :: ii
-    do ii = 1, size(H,dim=2)
-      write(*,*)H(:,ii)
-    end do
-  end block
 
 contains
 
@@ -66,13 +48,19 @@ contains
     type(dual_cmplx64), allocatable :: fr(:)
 
     type(dual_cmplx64) :: f1,f2,f3
+    integer :: order
 
+    order = size(r(1)%f) - 1
+    call initialize_dual(f1, order)
+    call initialize_dual(f2, order)
+    call initialize_dual(f3, order)
     f1 = sin(product(r))
     f2 = cos(product(r))*sqrt(r(4)/r(2) - r(1)/r(3))
     f3 = sin(log(product(r)))
 
     allocate(fr(3))
-    fr = [f1,f2,f3]
+    call initialize_dual(fr, order)
+    fr(:) = [f1,f2,f3]
 
   end function fvectest
 

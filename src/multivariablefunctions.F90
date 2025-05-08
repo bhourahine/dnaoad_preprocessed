@@ -45,7 +45,7 @@ module src_multivariablefunctions
       !> Array of dual values to apply the function to
       type(dual_${name}$${bits}$), intent(in) :: xd(:)
       !> Array valued results of the function
-      ${type}$(real${bits}$), allocatable :: frd(:)
+      type(dual_${name}$${bits}$), allocatable :: frd(:)
     end function fvecdual_${label}$${bits}$
   end interface
 
@@ -153,9 +153,9 @@ contains
 !
 !  end function dnfmixed_${label}$${bits}$
 
-  !> Directional derivative, up to order n, of a vector-valued function along vector v, evaluated at
-  !! point q
-  function dnfvector_${label}$${bits}$(fvecd, v, q, n) result(fr)
+  !> Directional derivative, up to order, of a n-dimensional vector-valued function along vector v,
+  !! evaluated at point q
+  function dnfvector_${label}$${bits}$(fvecd, v, q, n, order) result(fr)
 
     !> Function to differentiate
     procedure(fvecdual_${label}$${bits}$) :: fvecd
@@ -166,18 +166,22 @@ contains
     !> Point at which to evaluate
     ${type}$(real${bits}$), intent(in) :: q(:)
 
-    !> Order of derivative
+    !> Size of the vector returned by fvecd
     integer, intent(in) :: n
+
+    !> Order of derivative
+    integer, intent(in) :: order
 
     !> Resulting scalar directional derivative
     type(dual_${name}$${bits}$), allocatable :: fr(:)
 
     type(dual_${name}$${bits}$) :: eps
 
-    call initialize_dual(eps, n)
+    allocate(fr(n))
+    call initialize_dual(fr, order)
+    call initialize_dual(eps, order)
     eps%f(1) = 1
-
-    fr = fvecd(q + eps * v)
+    fr(:) = fvecd(q + eps * v)
 
   end function dnfvector_${label}$${bits}$
 
@@ -272,15 +276,12 @@ contains
 
     ${type}$(real${bits}$) :: ei(size(q))
     integer :: ii
-    type(dual_${name}$${bits}$) :: fTmp(n)
 
-    call initialize_dual(fTmp, 1)
     Jmat(:,:) = 0
     do ii = 1, size(q)
       ei(:) = 0
       ei(ii) = 1
-      fTmp(:) = dnfvector_dir(fvecd, ei, q, 1)
-      Jmat(:, ii) = f_part(fTmp, 1)
+      Jmat(:, ii) = f_part(dnfvector_dir(fvecd, ei, q, n, 1), 1)
     end do
 
   end function jacobian_${label}$${bits}$
