@@ -4,6 +4,7 @@ set(moduledir "${CMAKE_CURRENT_BINARY_DIR}/modules")
 list(APPEND tests
   testarithmetic
   testexponentiation
+  testjacobian
   testmatrix
   testtrig
   testtype
