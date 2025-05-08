@@ -5,7 +5,7 @@
 program dnaoad_example2
   use iso_fortran_env, only : real64
   use dnaoad
-  use src_multivariablefunctions, only : jacobian
+  use src_multivariablefunctions, only : jacobian, dnfvector, hessian, gradient
   implicit none
 
   integer, parameter :: prec = real64
@@ -26,7 +26,26 @@ program dnaoad_example2
   end do
   write(*,*)
 
+  print *, "Jv using vector directional derivative"
+  JV = f_part(dnfvector(fvectest,vec,q,nf,1), 1)
+  do ii = 1, nf
+    write(*,*) JV(ii)
+  end do
+  write(*,*)
 
+  print *, "---Hessian matrix---"
+  Hmat(:,:) = Hessian(fstest,q(1:3))
+  do ii = 1, 3
+    write(*,"(A,i0)") "row:",ii
+    write(*,*) Hmat(:, ii)
+  end do
+  write(*,*)
+
+  print *, "---Gradient---"
+  GV(:) = gradient(fstest,q(1:3))
+  do ii = 1, 3
+    write(*,*) GV(ii)
+  end do
 
 contains
 

@@ -23,6 +23,7 @@ module dnaoad
   use src_logicalfunctions, only : operator(==), operator(/=)
 
   use src_arithmeticfunctions, only : isInteger
+  use src_helperfunctions, only : f_part
   use src_types
   use src_conversions
 

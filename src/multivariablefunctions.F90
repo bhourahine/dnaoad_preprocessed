@@ -14,7 +14,7 @@ module src_multivariablefunctions
   use src_types
   implicit none
   private
-  public :: dnfscalar_dir, dnfvector_dir, gradient, hessian, jacobian
+  public :: dnfscalar, dnfvector, gradient, hessian, jacobian
 
   !> Abstract interfaces for functions passed as arguments to other
   !! functions.
@@ -52,21 +52,21 @@ module src_multivariablefunctions
 #:endfor
 #:endfor
 
-  interface dnfscalar_dir
+  interface dnfscalar
 #:for name, type, label in FLAVOURS
 #:for bits in REALMODEL
     module procedure dnfscalar_${label}$${bits}$
 #:endfor
 #:endfor
-  end interface dnfscalar_dir
+  end interface dnfscalar
 
-    interface dnfvector_dir
+    interface dnfvector
 #:for name, type, label in FLAVOURS
 #:for bits in REALMODEL
     module procedure dnfvector_${label}$${bits}$
 #:endfor
 #:endfor
-  end interface dnfvector_dir
+  end interface dnfvector
 
   interface d2fdudv
 #:for _, _, label in FLAVOURS
@@ -206,7 +206,7 @@ contains
 
     type(dual_${name}$${bits}$) :: ftmp
 
-    ftmp = dnfscalar_dir(fsd, u + v, q, 2) -dnfscalar_dir(fsd, u, q, 2) -dnfscalar_dir(fsd, v, q, 2)
+    ftmp = dnfscalar(fsd, u + v, q, 2) - dnfscalar(fsd, u, q, 2) - dnfscalar(fsd, v, q, 2)
     fr = 0.5_real${bits}$ * f_part(ftmp, 2)
 
   end function d2fdudv_${label}$${bits}$
@@ -226,7 +226,7 @@ contains
     do ii = 1, size(q)
       ei = 0
       ei(ii) = 1
-      fr(ii) = f_part(dnfscalar_dir(fsd, ei, q, 1), 1)
+      fr(ii) = f_part(dnfscalar(fsd, ei, q, 1), 1)
     end do
 
   end function gradient_${label}$${bits}$
@@ -249,7 +249,7 @@ contains
     do ii = 1, size(q)
       ei(:) = 0
       ei(ii) = 1
-      Hmat(ii, ii) = f_part(dnfscalar_dir(fsd, ei, q, 2), 2)
+      Hmat(ii, ii) = f_part(dnfscalar(fsd, ei, q, 2), 2)
       do jj = 1, size(q)
         if (ii == jj) cycle
         ej(:) = 0
@@ -281,7 +281,7 @@ contains
     do ii = 1, size(q)
       ei(:) = 0
       ei(ii) = 1
-      Jmat(:, ii) = f_part(dnfvector_dir(fvecd, ei, q, n, 1), 1)
+      Jmat(:, ii) = f_part(dnfvector(fvecd, ei, q, n, 1), 1)
     end do
 
   end function jacobian_${label}$${bits}$
