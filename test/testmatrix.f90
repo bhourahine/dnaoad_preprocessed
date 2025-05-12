@@ -14,7 +14,8 @@ contains
       test("sum_1real", sum_real_1D),&
       test("sum_2real", sum_real_2D),&
       test("sum_3real", sum_real_3D),&
-      test("product_1real", prod_real_1D)&
+      test("product_1real", prod_real_1D),&
+      test("product_2real", prod_real_2D)&
     ])
 
   end function tests
@@ -25,8 +26,7 @@ contains
     integer, parameter :: order = 2
     type(dual_real64) :: r, rArray(n)
     call initialize_dual(r, order)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    r = [2.0_real64, 1.0_real64]
     rArray(:) = r
     call check(sum(rArray) == n * r)
   end subroutine sum_real_1D
@@ -37,8 +37,7 @@ contains
     integer, parameter :: order = 2
     type(dual_real64) :: r, rArray(n,n)
     call initialize_dual(r, order)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    r = [2.0_real64, 1.0_real64]
     rArray(:,:) = r
     call check(sum(rArray) == n * n * r)
   end subroutine sum_real_2D
@@ -49,8 +48,7 @@ contains
     integer, parameter :: order = 2
     type(dual_real64) :: r, rArray(n,n,n)
     call initialize_dual(r, order)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    r = [2.0_real64, 1.0_real64]
     rArray(:,:,:) = r
     call check(sum(rArray) == n * n * n * r)
   end subroutine sum_real_3D
@@ -61,8 +59,7 @@ contains
     integer, parameter :: order = 4
     type(dual_real64) :: r, rArray(n)
     call initialize_dual(r, order)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    r = [2.0_real64, 1.0_real64]
     rArray(:) = r
     call check(product(rArray) == r**n)
   end subroutine prod_real_1D
@@ -73,8 +70,7 @@ contains
     integer, parameter :: order = 4
     type(dual_real64) :: r, rArray(n,n)
     call initialize_dual(r, order)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    r = [2.0_real64, 1.0_real64]
     rArray(:,:) = r
     call check(product(rArray) == r**(n*n))
   end subroutine prod_real_2D

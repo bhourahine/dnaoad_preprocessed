@@ -7,13 +7,8 @@ add_library(DNAOAD::dnaoad ALIAS dnaoad)
 set(curdir ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(sources-fpp
-  ${curdir}/arithmeticfunctions.F90
-  ${curdir}/chainrule.F90
   ${curdir}/constants.F90
-  ${curdir}/conversions.F90
   ${curdir}/dnaoad.F90
-  ${curdir}/helperfunctions.F90
-  ${curdir}/logicalfunctions.F90
   ${curdir}/matrixfunctions.F90
   ${curdir}/multivariablefunctions.F90
   ${curdir}/types.F90

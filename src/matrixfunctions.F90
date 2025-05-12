@@ -13,8 +13,12 @@
 !> Functions for matrices of dual numbers
 module src_matrixfunctions
   use iso_fortran_env, only : ${ISO_CONSTANTS}$
-  use src_arithmeticfunctions, only : assignment(=), operator(+), operator(*)
-  use src_types
+  use src_types, only : initialize_dual, assignment(=), operator(+), operator(*)
+#:for name, type, label in FLAVOURS
+#:for bits in REALMODEL
+  use src_types, only : dual_${name}$${bits}$
+#:endfor
+#:endfor
 
   implicit none
   private
@@ -89,7 +93,7 @@ contains
     integer :: order, ${loopindices}$
     ${type}$(real${bits}$), parameter :: one = 1.0_real${bits}$
 
-    order = size(A${firstelement}$%f) - 1
+    order = A${firstelement}$%order()
     call initialize_dual(fr, order)
 #:if subname == "prod"
     fr = one
@@ -147,7 +151,7 @@ contains
     type(dual_${name}$${bits}$), allocatable :: frTmp(:)
     ${type}$(real${bits}$), parameter :: one = 1.0_real${bits}$
 
-    order = size(A${firstelement}$%f) - 1
+    order = A${firstelement}$%order()
     indx(:) = skipDim(dim,shape(A))
     allocate(frTmp(product(indx)))
     fr = reshape(frTmp, indx)
@@ -313,7 +317,7 @@ contains
       error stop
     end if
 
-    order = min(size(A(1,1)%f), size(B(1,1)%f)) - 1
+    order = min(A(1,1)%order(), B(1,1)%order())
     call initialize_dual(fr, order)
 
     do ii = 1, m

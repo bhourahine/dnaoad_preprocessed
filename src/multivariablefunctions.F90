@@ -8,9 +8,6 @@
 !> Data types for dual values
 module src_multivariablefunctions
   use iso_fortran_env, only : ${ISO_CONSTANTS}$
-  use src_arithmeticfunctions, only : assignment (=), operator(*), operator(+), operator(-)
-  use src_chainrule, only : Dnd
-  use src_helperfunctions, only : f_part
   use src_types
   implicit none
   private
@@ -125,8 +122,10 @@ contains
 
     type(dual_${name}$${bits}$) :: eps
 
+    ${type}$(real${bits}$), parameter :: one = 1.0_real${bits}$
+
     call initialize_dual(eps, n)
-    eps%f(1) = 1
+    call eps%set_derivative(1, one)
 
     fr = fsd(q + eps * v)
 
@@ -177,10 +176,13 @@ contains
 
     type(dual_${name}$${bits}$) :: eps
 
+    ${type}$(real${bits}$), parameter :: one = 1.0_real${bits}$
+
     allocate(fr(n))
     call initialize_dual(fr, order)
     call initialize_dual(eps, order)
-    eps%f(1) = 1
+
+    call eps%set_derivative(1, one)
     fr(:) = fvecd(q + eps * v)
 
   end function dnfvector_${label}$${bits}$
@@ -272,9 +274,7 @@ contains
     !> Number of dependent variables (i.e. return size of fvecd array)
     integer, intent(in) :: n
 
-    ${type}$(real${bits}$) :: Jmat(n, size(q))
-
-    ${type}$(real${bits}$) :: ei(size(q))
+    ${type}$(real${bits}$) :: Jmat(n, size(q)), ei(size(q))
     integer :: ii
 
     Jmat(:,:) = 0

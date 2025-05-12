@@ -22,7 +22,7 @@ contains
   subroutine test_initialize_0()
     type(dual_real64) :: r
     call initialize_dual(r, 4)
-    call check(size(r%f) == 5)
+    call check(r%order() == 4)
   end subroutine test_initialize_0
 
   ! Test: initializing vector of values
@@ -30,7 +30,7 @@ contains
     type(dual_real64) :: r(4)
     call initialize_dual(r, 4)
     call check(size(r) == 4)
-    call check(size(r(1)%f) == 5)
+    call check(r(1)%order() == 4)
   end subroutine test_initialize_1
 
   ! Test: equivalence between dual numbers
@@ -39,8 +39,9 @@ contains
     call initialize_dual(r, 4)
     call initialize_dual(s, 4)
     call initialize_dual(t, 3)
-    r%f(:) = [0,1,2,3,4]
-    s%f(:) = [0,1,2,3,4]
+
+    call r%set_derivatives(1.0d0*[0,1,2,3,4])
+    call s%set_derivatives(1.0d0*[0,1,2,3,4])
     call check(r == s)
     call check(.not.(r == t))
   end subroutine test_eqv
@@ -51,8 +52,8 @@ contains
     call initialize_dual(r, 4)
     call initialize_dual(s, 4)
     call initialize_dual(t, 3)
-    r%f(:) = [0,1,2,3,4]
-    s%f(:) = [1,2,3,4,5]
+    call r%set_derivatives(1.0d0*[0,1,2,3,4])
+    call s%set_derivatives(1.0d0*[1,2,3,4,5])
     call check(r /= s)
     call check(r /= t)
   end subroutine test_neqv

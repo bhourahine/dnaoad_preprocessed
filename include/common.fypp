@@ -125,5 +125,16 @@
 #:set MIN_ISO_REAL = "int"+REALMODEL[0]
 #:set MAX_ISO_REAL = "int"+REALMODEL[-1]
 
+#! Sets a variable (aa) to the value of an optional argument (bb)
+#! if present or to a default value (cc) otherwise.
+#!
+#:def inoptflags(aa,bb,cc)
+  if (present(${bb}$)) then
+    ${aa}$ = ${bb}$
+  else
+    ${aa}$ = ${cc}$
+  end if
+#:enddef
+
 #:endmute
 #:endif

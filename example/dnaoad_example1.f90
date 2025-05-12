@@ -23,8 +23,8 @@ program dnaoad_example1
 
   !we set the 0-th and 1-th components. If dual numbers are used to
   !calculate D^n f(z0) then r must be of the form r = r0 + 1*eps_1
-  z%f(0) = z0
-  z%f(1) = 1
+  z = z0
+  call z%set_derivative(1, cmplx(1,0,prec))
 
   fz = sin(z)**log(z*z)
 
@@ -32,19 +32,19 @@ program dnaoad_example1
   !order-th derivative.
   print*,"Complex derivatives"
   do kk = 0, order
-    print*, fz%f(kk)
+    print*, fz%get_derivative(kk)
   end do
 
-  ! We initialize the dual number to 0 and up to the 5th derivative
+  ! We initialize the dual number to differentiate with respect to it
   call initialize_dual(r, order)
-  r%f(0) = r0
-  r%f(1) = 1
+  r = r0
+  call r%set_derivative(1, real(1,prec))
 
   fr = sin(r)**log(r*r)
 
   print*,"real derivatives"
   do kk = 0, order
-    print*, fr%f(kk)
+    print*, fr%get_derivative(kk)
   end do
 
 end program dnaoad_example1

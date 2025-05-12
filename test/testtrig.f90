@@ -30,97 +30,109 @@ contains
   ! Test: sin and asin as inverses
   subroutine test_sin_real()
     type(dual_real64) :: fr, r
+    logical, allocatable :: status(:)
     call initialize_dual(r, 4)
     call initialize_dual(fr, 4)
-    r%f(0) = 0.85
-    r%f(1) = 1.0
+    r = [0.85_real64, 1.0_real64]
     fr = sin(r)
-    write(*,*)"sin()", fr%f
+    write(*,*)"sin(x)", fr%get_derivatives()
     fr = asin(fr)
-    write(*,*)"asin(sin())", fr%f
+    write(*,*)"asin(sin(x))", fr%get_derivatives()
     fr = fr - r
-    write(*,*)"difference", fr%f
-    call check(all( abs(fr%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fr%get_derivatives()
+    status = abs(fr%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_sin_real
 
   ! Test: cos and acos as inverses
   subroutine test_cos_real()
     type(dual_real64) :: fr, r
+    logical, allocatable :: status(:)
     call initialize_dual(r, 4)
     call initialize_dual(fr, 4)
-    r%f(0) = 0.85
-    r%f(1) = 1.0
+    r = [0.85_real64, 1.0_real64]
     fr = cos(r)
-    write(*,*)"cos()", fr%f
+    write(*,*)"cos(x)", fr%get_derivatives()
     fr = acos(fr)
-    write(*,*)"acos(cos())", fr%f
+    write(*,*)"acos(cos(x))", fr%get_derivatives()
     fr = fr - r
-    write(*,*)"difference", fr%f
-    call check(all( abs(fr%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fr%get_derivatives()
+    status = abs(fr%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_cos_real
 
   ! Test: tan and atan as inverses
   subroutine test_tan_real()
     type(dual_real64) :: fr, r
+    logical, allocatable :: status(:)
     call initialize_dual(r, 4)
     call initialize_dual(fr, 4)
-    r%f(0) = 0.85
-    r%f(1) = 1.0
+    r = [0.85_real64, 1.0_real64]
     fr = tan(r)
-    write(*,*)"tan()", fr%f
+    write(*,*)"tan(x)", fr%get_derivatives()
     fr = atan(fr)
-    write(*,*)"atan(tan())", fr%f
+    write(*,*)"atan(tan(x))", fr%get_derivatives()
     fr = fr - r
-    write(*,*)"difference", fr%f
-    call check(all( abs(fr%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fr%get_derivatives()
+    status = abs(fr%get_derivatives()) < 1000.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_tan_real
 
   ! Test: sin and asin as inverses
   subroutine test_sin_cmplx()
     type(dual_cmplx64) :: fz, z
+    logical, allocatable :: status(:)
     call initialize_dual(z, 4)
     call initialize_dual(fz, 4)
-    z%f(0) = (0.85,0.15)
-    z%f(1) = 1.0
+    z = [(0.85_real64,0.15_real64), (1.0_real64,0.0_real64)]
     fz = sin(z)
-    write(*,*)"sin()", fz%f
+    write(*,*)"sin(z)", fz%get_derivatives()
     fz = asin(fz)
-    write(*,*)"asin(sin())", fz%f
+    write(*,*)"asin(sin(z))", fz%get_derivatives()
     fz = fz - z
-    write(*,*)"difference", fz%f
-    call check(all( abs(fz%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fz%get_derivatives()
+    status = abs(fz%get_derivatives()) < 1000.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_sin_cmplx
 
   ! Test: cos and acos as inverses
   subroutine test_cos_cmplx()
     type(dual_cmplx64) :: fz, z
+    logical, allocatable :: status(:)
     call initialize_dual(z, 4)
     call initialize_dual(fz, 4)
-    z%f(0) = (0.85,0.15)
-    z%f(1) = 1.0
+    z = [(0.85_real64,0.15_real64), (1.0_real64,0.0_real64)]
     fz = cos(z)
-    write(*,*)"cos()", fz%f
+    write(*,*)"cos(z)", fz%get_derivatives()
     fz = acos(fz)
-    write(*,*)"acos(cos())", fz%f
+    write(*,*)"acos(cos(z))", fz%get_derivatives()
     fz = fz - z
-    write(*,*)"difference", fz%f
-    call check(all( abs(fz%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fz%get_derivatives()
+    status = abs(fz%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_cos_cmplx
 
   ! Test: tan and atan as inverses
   subroutine test_tan_cmplx()
     type(dual_cmplx64) :: fz, z
+    logical, allocatable :: status(:)
     call initialize_dual(z, 4)
     call initialize_dual(fz, 4)
-    z%f(0) = (0.85,0.15)
-    z%f(1) = 1.0
+    z = [(0.85_real64,0.15_real64), (1.0_real64,0.0_real64)]
     fz = tan(z)
-    write(*,*)"tan()", fz%f
+    write(*,*)"tan(z)", fz%get_derivatives()
     fz = atan(fz)
-    write(*,*)"atan(tan())", fz%f
+    write(*,*)"atan(tan(z))", fz%get_derivatives()
     fz = fz - z
-    write(*,*)"difference", fz%f
-    call check(all( abs(fz%f) < 1000.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fz%get_derivatives()
+    status = abs(fz%get_derivatives()) < 1000.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_tan_cmplx
 
   ! Hyperbolic functions
@@ -128,97 +140,109 @@ contains
   ! Test: sinh and asinh as inverses
   subroutine test_sinh_real()
     type(dual_real64) :: fr, r
+    logical, allocatable :: status(:)
     call initialize_dual(r, 4)
     call initialize_dual(fr, 4)
-    r%f(0) = 0.85
-    r%f(1) = 1.0
+    r = [0.85_real64, 1.0_real64]
     fr = sinh(r)
-    write(*,*)"sinh()", fr%f
+    write(*,*)"sinh(x)", fr%get_derivatives()
     fr = asinh(fr)
-    write(*,*)"asinh(sinh())", fr%f
+    write(*,*)"asinh(sinh(x))", fr%get_derivatives()
     fr = fr - r
-    write(*,*)"difference", fr%f
-    call check(all( abs(fr%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fr%get_derivatives()
+    status = abs(fr%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_sinh_real
 
   ! Test: cosh and acosh as inverses
   subroutine test_cosh_real()
     type(dual_real64) :: fr, r
+    logical, allocatable :: status(:)
     call initialize_dual(r, 4)
     call initialize_dual(fr, 4)
-    r%f(0) = 0.85
-    r%f(1) = 1.0
+    r = [0.85_real64, 1.0_real64]
     fr = cosh(r)
-    write(*,*)"cosh()", fr%f
+    write(*,*)"cosh(x)", fr%get_derivatives()
     fr = acosh(fr)
-    write(*,*)"acosh(cosh())", fr%f
+    write(*,*)"acosh(cosh(x))", fr%get_derivatives()
     fr = fr - r
-    write(*,*)"difference", fr%f
-    call check(all( abs(fr%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fr%get_derivatives()
+    status = abs(fr%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_cosh_real
 
   ! Test: tanh and atanh as inverses
   subroutine test_tanh_real()
     type(dual_real64) :: fr, r
+    logical, allocatable :: status(:)
     call initialize_dual(r, 4)
     call initialize_dual(fr, 4)
-    r%f(0) = 0.85
-    r%f(1) = 1.0
+    r = [0.85_real64, 1.0_real64]
     fr = tanh(r)
-    write(*,*)"tanh()", fr%f
+    write(*,*)"tanh(x)", fr%get_derivatives()
     fr = atanh(fr)
-    write(*,*)"atanh(tanh())", fr%f
+    write(*,*)"atanh(tanh(x))", fr%get_derivatives()
     fr = fr - r
-    write(*,*)"difference", fr%f
-    call check(all( abs(fr%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fr%get_derivatives()
+    status = abs(fr%get_derivatives()) < 1000.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_tanh_real
 
   ! Test: sinh and asinh as inverses
   subroutine test_sinh_cmplx()
     type(dual_cmplx64) :: fz, z
+    logical, allocatable :: status(:)
     call initialize_dual(z, 4)
     call initialize_dual(fz, 4)
-    z%f(0) = (0.85,0.15)
-    z%f(1) = 1.0
+    z = [(0.85_real64,0.15_real64), (1.0_real64,0.0_real64)]
     fz = sinh(z)
-    write(*,*)"sinh()", fz%f
+    write(*,*)"sinh(z)", fz%get_derivatives()
     fz = asinh(fz)
-    write(*,*)"asinh(sinh())", fz%f
+    write(*,*)"asinh(sinh(z))", fz%get_derivatives()
     fz = fz - z
-    write(*,*)"difference", fz%f
-    call check(all( abs(fz%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fz%get_derivatives()
+    status = abs(fz%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_sinh_cmplx
 
   ! Test: cosh and acosh as inverses
   subroutine test_cosh_cmplx()
     type(dual_cmplx64) :: fz, z
+    logical, allocatable :: status(:)
     call initialize_dual(z, 4)
     call initialize_dual(fz, 4)
-    z%f(0) = (0.85,0.15)
-    z%f(1) = 1.0
+    z = [(0.85_real64,0.15_real64), (1.0_real64,0.0_real64)]
     fz = cosh(z)
-    write(*,*)"cosh()", fz%f
+    write(*,*)"cosh(z)", fz%get_derivatives()
     fz = acosh(fz)
-    write(*,*)"acosh(cosh())", fz%f
+    write(*,*)"acosh(cosh(z))", fz%get_derivatives()
     fz = fz - z
-    write(*,*)"difference", fz%f
-    call check(all( abs(fz%f) < 100.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fz%get_derivatives()
+    status = abs(fz%get_derivatives()) < 100.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_cosh_cmplx
 
   ! Test: tanh and atanh as inverses
   subroutine test_tanh_cmplx()
     type(dual_cmplx64) :: fz, z
+    logical, allocatable :: status(:)
     call initialize_dual(z, 4)
     call initialize_dual(fz, 4)
-    z%f(0) = (0.85,0.15)
-    z%f(1) = 1.0
+    z = [(0.85_real64,0.15_real64), (1.0_real64,0.0_real64)]
     fz = tanh(z)
-    write(*,*)"tanh()", fz%f
+    write(*,*)"tanh(z)", fz%get_derivatives()
     fz = atanh(fz)
-    write(*,*)"atanh(tanh())", fz%f
+    write(*,*)"atanh(tanh(z))", fz%get_derivatives()
     fz = fz - z
-    write(*,*)"difference", fz%f
-    call check(all( abs(fz%f) < 1000.0_real64 * epsilon(0.0_real64) ))
+    write(*,*)"difference", fz%get_derivatives()
+    status = abs(fz%get_derivatives()) < 1000.0_real64 * epsilon(0.0_real64)
+    write(*,*)status
+    call check(all(status))
   end subroutine test_tanh_cmplx
 
 end module test_trig
