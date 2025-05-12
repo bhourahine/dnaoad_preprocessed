@@ -23,136 +23,172 @@ contains
 
   end function tests
 
-  ! Test: tests dual raised to a dual
+  ! Tests dual raised to a dual : x^x
   subroutine power_real_duals()
     type(dual_real64) :: r, s, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(s, 4)
-    call initialize_dual(fr, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
-    s%f(0) = 2.0
-    s%f(1) = 1.0
+    real(real64), parameter :: x = 2.0_real64
+    real(real64), parameter :: one = 1.0_real64
+    real(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(r, 2)
+    call initialize_dual(s, 2)
+    call initialize_dual(fr, 2)
+    call r%set_derivatives([x,one,zero])
+    s = r
     fr = r ** s
-    write(*,*)r%f
-    write(*,*)s%f
-    write(*,*)fr%f
-    call check(abs(fr%f(0) - 4.0) < epsilon(0.0))
+    write(*,*)r%get_derivatives()
+    write(*,*)s%get_derivatives()
+    write(*,*)fr%get_derivatives()
+    write(*,*)"r  :", r%get_derivatives()
+    write(*,*)"r^2:", fr%get_derivatives()
+    write(*,*)x*x, x*x*(log(x)+one), x*x*(1/x + (one + log(x))**2)
+    call check(abs(fr%get_derivative(0) - x*x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(1) - x*x*(log(x)+one)) < epsilon(0.0))
+    call check(abs(fr%get_derivative(2) - x*x*(1/x + (one + log(x))**2)) < epsilon(0.0))
   end subroutine power_real_duals
 
-  ! Test: tests dual raised to an integer
+  ! Test: tests dual raised to an integer x^2
   subroutine power_real_dualint()
     type(dual_real64) :: r, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(fr, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    real(real64), parameter :: x = 2.0_real64
+    real(real64), parameter :: one = 1.0_real64
+    real(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(r, 2)
+    call initialize_dual(fr, 2)
+    call r%set_derivatives([x,one,zero])
     fr = r ** 2
-    write(*,*)r%f
-    write(*,*)fr%f
-    call check(abs(fr%f(0) - 4.0) < epsilon(0.0))
+    write(*,*)"r  :", r%get_derivatives()
+    write(*,*)"r^2:", fr%get_derivatives()
+    write(*,*)x*x, 2*x, 2
+    call check(abs(fr%get_derivative(0) - x*x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(1) - 2.0_real64 * x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(2) - 2.0_real64) < epsilon(0.0))
   end subroutine power_real_dualint
 
-  ! Test: tests integer raised to a dual
+  ! Test: tests integer raised to a dual 2^x
   subroutine power_real_intdual()
     type(dual_real64) :: r, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(fr, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    real(real64), parameter :: x = 2.0_real64
+    real(real64), parameter :: one = 1.0_real64
+    real(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(r, 2)
+    call initialize_dual(fr, 2)
+    call r%set_derivatives([x,one,zero])
     fr = 2 ** r
-    write(*,*)r%f
-    write(*,*)fr%f
-    call check(abs(fr%f(0) - 4.0) < epsilon(0.0))
+    write(*,*)"r  :", r%get_derivatives()
+    write(*,*)"2^r:", fr%get_derivatives()
+    write(*,*)x*x, log(2.0_real64) * 2**x, (log(2.0_real64)**2) * 2**x
+    call check(abs(fr%get_derivative(0) - x*x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(1) - log(2.0_real64) * 2**x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(2) - (log(2.0_real64)**2) * 2**x) < epsilon(0.0))
   end subroutine power_real_intdual
 
-  ! Test: tests integer raised to a dual
+  ! Tests variants of 0 raised to or raising as a power
   subroutine power_real_0()
     type(dual_real64) :: r, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(fr, 4)
+    integer, parameter :: order = 4
+    integer :: ref(0:order)
+    call initialize_dual(r, order)
+    call initialize_dual(fr, order)
+    ref(:) = 0
+    ref(0) = 1
     fr = 2 ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** 2
-    call check(abs(fr%f(0)) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives()) < epsilon(0.0)))
     fr = 0 ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** 0
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = 0.0_real64 ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** 0.0_real64
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
   end subroutine power_real_0
 
-  ! Test: tests dual raised to a dual
+  ! Tests dual raised to a dual : x^x
   subroutine power_cmplx_duals()
     type(dual_cmplx64) :: r, s, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(s, 4)
-    call initialize_dual(fr, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
-    s%f(0) = 2.0
-    s%f(1) = 1.0
+    complex(real64), parameter :: x = 2.0_real64
+    complex(real64), parameter :: one = 1.0_real64
+    complex(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(r, 2)
+    call initialize_dual(s, 2)
+    call initialize_dual(fr, 2)
+    call r%set_derivatives([x,one,zero])
+    s = r
     fr = r ** s
-    write(*,*)r%f
-    write(*,*)s%f
-    write(*,*)fr%f
-    call check(abs(fr%f(0) - 4.0) < epsilon(0.0))
+    write(*,*)r%get_derivatives()
+    write(*,*)s%get_derivatives()
+    write(*,*)fr%get_derivatives()
+    write(*,*)"r  :", r%get_derivatives()
+    write(*,*)"r^2:", fr%get_derivatives()
+    write(*,*)x*x, x*x*(log(x)+one), x*x*(1/x + (one + log(x))**2)
+    call check(abs(fr%get_derivative(0) - x*x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(1) - x*x*(log(x)+one)) < epsilon(0.0))
+    call check(abs(fr%get_derivative(2) - x*x*(1/x + (one + log(x))**2)) < epsilon(0.0))
   end subroutine power_cmplx_duals
 
-  ! Test: tests dual raised to an integer
+  ! Test: tests dual raised to an integer x^2
   subroutine power_cmplx_dualint()
     type(dual_cmplx64) :: r, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(fr, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    complex(real64), parameter :: x = 2.0_real64
+    complex(real64), parameter :: one = 1.0_real64
+    complex(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(r, 2)
+    call initialize_dual(fr, 2)
+    call r%set_derivatives([x,one,zero])
     fr = r ** 2
-    write(*,*)r%f
-    write(*,*)fr%f
-    call check(abs(fr%f(0) - 4.0) < epsilon(0.0))
+    write(*,*)"r  :", r%get_derivatives()
+    write(*,*)"r^2:", fr%get_derivatives()
+    write(*,*)x*x, 2*x, 2
+    call check(abs(fr%get_derivative(0) - x*x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(1) - 2.0_real64 * x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(2) - 2.0_real64) < epsilon(0.0))
   end subroutine power_cmplx_dualint
 
-  ! Test: tests integer raised to a dual
+  ! Test: tests integer raised to a dual 2^x
   subroutine power_cmplx_intdual()
     type(dual_cmplx64) :: r, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(fr, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
+    complex(real64), parameter :: x = 2.0_real64
+    complex(real64), parameter :: one = 1.0_real64
+    complex(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(r, 2)
+    call initialize_dual(fr, 2)
+    call r%set_derivatives([x,one,zero])
     fr = 2 ** r
-    write(*,*)r%f
-    write(*,*)fr%f
-    call check(abs(fr%f(0) - 4.0) < epsilon(0.0))
+    write(*,*)"r  :", r%get_derivatives()
+    write(*,*)"2^r:", fr%get_derivatives()
+    write(*,*)x*x, log(2.0_real64) * 2**x, (log(2.0_real64)**2) * 2**x
+    call check(abs(fr%get_derivative(0) - x*x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(1) - log(2.0_real64) * 2**x) < epsilon(0.0))
+    call check(abs(fr%get_derivative(2) - (log(2.0_real64)**2) * 2**x) < epsilon(0.0))
   end subroutine power_cmplx_intdual
 
-  ! Test: tests integer raised to a dual
+  ! Tests variants of 0 raised to or raising as a power
   subroutine power_cmplx_0()
     type(dual_cmplx64) :: r, fr
-    call initialize_dual(r, 4)
-    call initialize_dual(fr, 4)
+    integer, parameter :: order = 4
+    integer :: ref(0:order)
+    call initialize_dual(r, order)
+    call initialize_dual(fr, order)
+    ref(:) = 0
+    ref(0) = 1
     fr = 2 ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** 2
-    call check(abs(fr%f(0)) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives()) < epsilon(0.0)))
     fr = 0 ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** 0
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
-    fr = cmplx(0,0,kind=real64) ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
-    fr = r ** cmplx(0,0,kind=real64)
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
-    fr = 0_real64 ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
-    fr = r ** 0_real64
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
+    fr = (0.0_real64, 0.0_real64) ** r
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
+    fr = r ** (0.0_real64, 0.0_real64)
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
     fr = r ** r
-    call check(abs(fr%f(0) - 1) < epsilon(0.0))
+    call check(all(abs(fr%get_derivatives() - ref) < epsilon(0.0)))
   end subroutine power_cmplx_0
 
 end module test_exponentiation

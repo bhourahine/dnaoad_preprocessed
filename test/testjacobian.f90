@@ -57,7 +57,7 @@ contains
     type(dual_cmplx64) :: f1,f2,f3
     integer :: order
 
-    order = size(r(1)%f) - 1
+    order = r(1)%order()
     call initialize_dual(f1, order)
     call initialize_dual(f2, order)
     call initialize_dual(f3, order)

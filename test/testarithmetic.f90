@@ -13,50 +13,46 @@ contains
     tests = test_list([&
       test("add_0", add_real_0),&
       test("add_1", add_cmplx_1),&
-      test("add_1", sub_real_0),&
-      test("add_1", sub_cmplx_1),&
+      test("sub_0", sub_real_0),&
+      test("sub_1", sub_cmplx_1),&
       test("div_0", div_real_0),&
       test("div_1", div_cmplx_1),&
-      test("int_1", test_isint),&
-      test("inv_r", test_invr),&
-      test("inv_z", test_invz)&
+      test("inv_r", test_invx),&
+      test("inv_z", test_invz),&
+      test("int_1", test_isint)&
     ])
 
   end function tests
 
   ! Test: tests 2 * x = x + x
   subroutine add_real_0()
-    type(dual_real64) :: r
-    call initialize_dual(r, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
-    call check(2 * r == r + r)
+    type(dual_real64) :: x
+    call initialize_dual(x, 2)
+    call x%set_derivatives([2.0_real64, 1.0_real64, 0.0_real64])
+    call check(2 * x == x + x)
   end subroutine add_real_0
 
-  ! Test: tests 2 * x = x + x
+  ! Test: tests 2 * z = z + z
   subroutine add_cmplx_1()
     type(dual_cmplx64) :: z
-    call initialize_dual(z, 4)
-    z%f(0) = (2.0,-3.0)
-    z%f(1) = 1.0
+    call initialize_dual(z, 2)
+    call z%set_derivatives([cmplx(2.0,-3.0, real64), cmplx(1.0,0.0, real64), cmplx(0,0, real64)])
     call check(2 * z == z + z)
   end subroutine add_cmplx_1
 
   ! Test: tests 2 * x - x =  x
   subroutine sub_real_0()
-    type(dual_real64) :: r
-    call initialize_dual(r, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
-    call check(2 * r - r == r)
+    type(dual_real64) :: x
+    call initialize_dual(x, 2)
+    x = [2,1]
+    call check(2 * x - x == x)
   end subroutine sub_real_0
 
-  ! Test: tests 2 * x = x + x
+  ! Test: tests 2 * z - z =  z
   subroutine sub_cmplx_1()
     type(dual_cmplx64) :: z
-    call initialize_dual(z, 4)
-    z%f(0) = (2.0,-3.0)
-    z%f(1) = 1.0
+    call initialize_dual(z, 2)
+    call z%set_derivatives([cmplx(2.0,-3.0, real64), cmplx(1.0,0.0, real64), cmplx(0,0, real64)])
     call check(2 * z - z == z)
   end subroutine sub_cmplx_1
 
@@ -64,62 +60,63 @@ contains
   subroutine div_real_0()
     type(dual_real64) :: x
     call initialize_dual(x, 4)
-    x%f(0) = 2.0
-    x%f(1) = 1.0
+    x = [2,1]
     call check(x**2 / x == x)
   end subroutine div_real_0
 
-  ! Test: tests x**2 / x = x
+  ! Test: tests z**2 / z = z
   subroutine div_cmplx_1()
     type(dual_cmplx64) :: z, fz
     call initialize_dual(z, 4)
-    z%f(0) = cmplx(2.0,-3.0)
-    z%f(1) = 1.0
+    z = [cmplx(2.0,-3.0, real64), cmplx(1.0,0.0, real64)]
     fz = z**2 / z - z
-    call check(all( abs(fz%f) < 10.0_real64 * epsilon(0.0_real64) ))
+    call check(all( abs(fz%get_derivatives()) < 10.0_real64 * epsilon(0.0_real64) ))
   end subroutine div_cmplx_1
 
-  ! Test: tests r * r^-1 = 1
-  subroutine test_invr()
-    type(dual_real64) :: r, fr
-    call initialize_dual(r, 4)
-    r%f(0) = 2.0
-    r%f(1) = 1.0
-    fr = r * inv(r)
-    call check(all(abs(fr%f - [1,0,0,0,0]) < 10.0_real64 * epsilon(0.0_real64) ))
-  end subroutine test_invr
+  ! Test: tests x * x^-1 = 1
+  subroutine test_invx()
+    type(dual_real64) :: x, fx
+    complex(real64), parameter :: one = 1.0_real64
+    complex(real64), parameter :: zero = 0.0_real64
+    call initialize_dual(x, 4)
+    x = [2,1]
+    fx = x * inv(x)
+    call check(all(abs(fx%get_derivatives() - [one,zero,zero,zero,zero])&
+        & < 10.0_real64 * epsilon(0.0_real64) ))
+  end subroutine test_invx
 
   ! Test: tests z * z^-1 = 1
   subroutine test_invz()
     type(dual_cmplx64) :: z, fz
     call initialize_dual(z, 4)
-    z%f(0) = (2.0,-1.0)
-    z%f(1) = 1.0
+    z = [cmplx(2.0,-1.0, real64), cmplx(1.0,0.0, real64)]
     fz = z * inv(z)
-    call check(all(abs(fz%f - [1,0,0,0,0]) < 10.0_real64 * epsilon(0.0_real64) ))
+    call check(all(abs(fz%get_derivatives() - [1,0,0,0,0]) < 10.0_real64 * epsilon(0.0_real64) ))
   end subroutine test_invz
 
   ! Test: tests if a dual number is equivalent to an integer
   subroutine test_isint()
-    type(dual_real64) :: r
+    type(dual_real64) :: x
     type(dual_cmplx64) :: z
-    call initialize_dual(r, 4)
+    call initialize_dual(x, 4)
     call initialize_dual(z, 4)
-    r%f(0) = 1
-    z%f(0) = 2
-    call check(isInteger(r))
+    x = 1
+    call check(isInteger(x))
+    z = 2
     call check(isInteger(z))
-    r = 2
-    z = 3
-    call check(isInteger(r))
-    call check(isInteger(z))
-    r = 2
-    r%f(1) = 1
-    z = 3
-    z%f(1) = 1
-    call check(.not.isInteger(r))
+    x = 1.2_real64
+    call check(.not.isInteger(x))
+    z = (2.2_real64,0.0_real64)
     call check(.not.isInteger(z))
-    z = 1
+    x = [2,1]
+    call check(.not.isInteger(x))
+    z = [3,1]
+    call check(.not.isInteger(z))
+    x = 1
+    call check(isInteger(x))
+    z = 2
+    call check(isInteger(z))
+    z = cmplx(1,0,real64)
     call check(isInteger(z))
     z = cmplx(1,2,real64)
     call check(.not.isInteger(z))
