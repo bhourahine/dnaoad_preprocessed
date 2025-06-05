@@ -1,0 +1,37 @@
+name: Build and Test Fortran Project on windows with gfortran
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    env:
+      BUILD_DIR: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies (MinGW, CMake, Python)
+      run: |
+        choco install -y mingw cmake python
+
+    - name: Add MinGW to PATH
+      run: echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+
+    - name: Verify tools
+      run: |
+        gfortran --version
+        cmake --version
+        python --version
+
+    - name: Configure project with CMake (MinGW Makefiles)
+      run: cmake -S . -B $env:BUILD_DIR -G "MinGW Makefiles"
+
+    - name: Build project
+      run: cmake --build $env:BUILD_DIR
+
+    - name: Run tests with CTest
+      run: |
+        cd $env:BUILD_DIR
+        ctest --output-on-failure

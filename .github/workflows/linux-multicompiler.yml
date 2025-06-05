@@ -1,4 +1,4 @@
-name: Multiplatform CTest Fortran Build
+name: Multicompiler CTest Fortran Build on Linux
 
 on: [push, pull_request]
 
