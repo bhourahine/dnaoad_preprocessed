@@ -8,6 +8,7 @@ list(APPEND tests
   testmatrix
   testtrig
   testtype
+  testvector
 )
 
 foreach(test IN LISTS tests)

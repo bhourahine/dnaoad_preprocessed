@@ -11,7 +11,7 @@ module src_multivariablefunctions
   use src_types
   implicit none
   private
-  public :: dnfscalar, dnfvector, gradient, hessian, jacobian
+  public :: dnfscalar, dnfvector, gradient, hessian, jacobian, divergence, curl
 
   !> Abstract interfaces for functions passed as arguments to other
   !! functions.
@@ -97,6 +97,22 @@ module src_multivariablefunctions
 #:endfor
   end interface jacobian
 
+  interface curl
+#:for name, type, label in FLAVOURS
+#:for bits in REALMODEL
+    module procedure curl_${label}$${bits}$
+#:endfor
+#:endfor
+  end interface curl
+
+  interface divergence
+#:for name, type, label in FLAVOURS
+#:for bits in REALMODEL
+    module procedure div_${label}$${bits}$
+#:endfor
+#:endfor
+  end interface divergence
+
 contains
 
 #:for name, type, label in FLAVOURS
@@ -131,26 +147,6 @@ contains
 
   end function dnfscalar_${label}$${bits}$
 
-!  !> Mixed derivative at values q (unchecked)
-!  function dnfmixed_${label}$${bits}$(fsd, q) result(fr)
-!
-!    !> Function to differentiate
-!    procedure(fsdual_${label}$${bits}$) :: fsd
-!
-!    !> Points at which to evaluate derivatives
-!    ${type}$(real${bits}$), intent(in) :: q(:)
-!
-!    !> Resulting derivative
-!    type(dual_${name}$${bits}$) :: fr
-!
-!    type(dual_${name}$${bits}$) :: eps(size(q))
-!
-!    call initialize_dual(eps, n)
-!    eps(:)%f(1) = 1
-!
-!    fr = fsd(q + sum(eps)) -
-!
-!  end function dnfmixed_${label}$${bits}$
 
   !> Directional derivative, up to order, of a n-dimensional vector-valued function along vector v,
   !! evaluated at point q
@@ -213,6 +209,7 @@ contains
 
   end function d2fdudv_${label}$${bits}$
 
+
   !> Evaluate gradients (i.e. 1st derivative) of scalar function fsd at point q
   function gradient_${label}$${bits}$(fsd, q) result(fr)
 
@@ -232,6 +229,7 @@ contains
     end do
 
   end function gradient_${label}$${bits}$
+
 
   !> Evaluate the hessian matrix of a scalar function fsd at point q
   function hessian_${label}$${bits}$(fsd, q) result(Hmat)
@@ -262,10 +260,11 @@ contains
 
   end function hessian_${label}$${bits}$
 
+
   !> Evaluate the jacobian matrix of a vector function fvecd at point q
   function jacobian_${label}$${bits}$(fvecd, q, n) result(Jmat)
 
-    !> Scalar valued function to evaluate the gradient
+    !> Vector valued function to evaluate the gradient
     procedure(fvecdual_${label}$${bits}$) :: fvecd
 
     !> Point at which to evaluate the derivative
@@ -285,6 +284,60 @@ contains
     end do
 
   end function jacobian_${label}$${bits}$
+
+
+  !> Evaluate the divergence of a cartesian 3-vector valued function fvecd at point q
+  function div_${label}$${bits}$(fvecd, q) result(div)
+
+    !> 3-vector valued function to evaluate the gradient
+    procedure(fvecdual_${label}$${bits}$) :: fvecd
+
+    !> Point at which to evaluate the derivative
+    ${type}$(real${bits}$), intent(in) :: q(3)
+
+    !> Resulting divergence
+    ${type}$(real${bits}$) :: div
+
+    ${type}$(real${bits}$) :: J(3,3), ei(3)
+    integer :: ii
+
+    J(:,:) = 0
+    do ii = 1, 3
+      ei(:) = 0
+      ei(ii) = 1
+      J(:, ii) = f_part(dnfvector(fvecd, ei, q, 3, 1), 1)
+    end do
+
+    div = J(1,1) + J(2,2) + J(3,3)
+
+  end function div_${label}$${bits}$
+
+
+  !> Evaluate the curl/rotor of a cartesian 3-vector valued function fvecd at point q
+  function curl_${label}$${bits}$(fvecd, q) result(curl)
+
+    !> 3-vector valued function
+    procedure(fvecdual_${label}$${bits}$) :: fvecd
+
+    !> Point at which to evaluate the derivative
+    ${type}$(real${bits}$), intent(in) :: q(3)
+
+    !> Resulting curl vector
+    ${type}$(real${bits}$) :: curl(3)
+
+    ${type}$(real${bits}$) :: J(3,3), ei(3)
+    integer :: ii
+
+    J(:,:) = 0
+    do ii = 1, 3
+      ei(:) = 0
+      ei(ii) = 1
+      J(:, ii) = f_part(dnfvector(fvecd, ei, q, 3, 1), 1)
+    end do
+
+    curl(:) = [J(2,3)-J(3,2),J(3,1)-J(1,3),J(1,2)-J(2,1)]
+
+  end function curl_${label}$${bits}$
 
 #:endfor
 #:endfor

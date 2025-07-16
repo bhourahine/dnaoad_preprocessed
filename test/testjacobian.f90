@@ -17,7 +17,7 @@ contains
 
   end function tests
 
-  ! Test: tests sum of matrix elements matches product
+  ! Test: tests jacobian times direction matches directional derivative along direction
   subroutine test_jacobian_43()
     integer, parameter :: prec = real64
     integer, parameter :: nf = 3, mq= 4
