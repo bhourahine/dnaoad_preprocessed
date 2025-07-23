@@ -45,6 +45,8 @@ module src_types
     procedure :: get_derivatives => f_${label}$${bits}$
     procedure :: set_derivative => setDeriv_${label}$${bits}$
     procedure :: set_derivatives => setDerivs_${label}$${bits}$
+    !> Finalizer for the dual type on leaving scope
+    final :: dual_finalizer_${name}$${bits}$
   end type dual_${name}$${bits}$
 #:endfor
 
@@ -492,6 +494,16 @@ contains
     A%f(:) = fr
 
   end subroutine setDerivs_${label}$${bits}$
+
+  !> Explicit finalizer for the dual type ${name}$${bits}$
+  subroutine dual_finalizer_${name}$${bits}$(this)
+
+    !> Dual number
+    type(dual_${name}$${bits}$), intent(inout) :: this
+
+    if (allocated(this%f)) deallocate(this%f)
+
+  end subroutine dual_finalizer_${name}$${bits}$
 
 #! Integers with dual numbers
 #:for intbits in INTMODEL
