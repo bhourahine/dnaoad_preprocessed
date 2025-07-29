@@ -286,29 +286,35 @@ contains
   end function jacobian_${label}$${bits}$
 
 
-  !> Evaluate the divergence of a cartesian 3-vector valued function fvecd at point q
+  !> Evaluate the divergence of a cartesian valued function fvecd at point q
   function div_${label}$${bits}$(fvecd, q) result(div)
 
-    !> 3-vector valued function to evaluate the gradient
+    !> vector valued function to evaluate the divergence
     procedure(fvecdual_${label}$${bits}$) :: fvecd
 
     !> Point at which to evaluate the derivative
-    ${type}$(real${bits}$), intent(in) :: q(3)
+    ${type}$(real${bits}$), intent(in) :: q(:)
 
     !> Resulting divergence
     ${type}$(real${bits}$) :: div
 
-    ${type}$(real${bits}$) :: J(3,3), ei(3)
-    integer :: ii
+    ${type}$(real${bits}$), allocatable :: J(:,:), ei(:)
+    integer :: ii, nDim
 
+    nDim = size(q)
+    allocate(J(nDim, nDim))
+    allocate(ei(nDim))
     J(:,:) = 0
-    do ii = 1, 3
+    do ii = 1, nDim
       ei(:) = 0
       ei(ii) = 1
-      J(:, ii) = f_part(dnfvector(fvecd, ei, q, 3, 1), 1)
+      J(:, ii) = f_part(dnfvector(fvecd, ei, q, nDim, 1), 1)
     end do
 
-    div = J(1,1) + J(2,2) + J(3,3)
+    div = 0.0
+    do ii = 1, nDim
+      div = div + J(ii,ii)**2
+    end do
 
   end function div_${label}$${bits}$
 
