@@ -22,6 +22,22 @@ selected *_build* directory via
 For windows compilation, either use a framework like *MinGW* and the
 above compilation, or *cmake* is integrated with visual studio.
 
+If locally installed, where to find Fortuno source files and the fypp
+preprocessor can be specified at configutation time with
+
+> cmake -DFETCHCONTENT_SOURCE_DIR_FYPP=/path/to/fypp
+
+or
+
+> cmake -DFETCHCONTENT_SOURCE_DIR_FORTUNO=/path/to/Fortuno
+
+where in each cases, the path to the top level of the their
+repositories (or also directly to the binary location for fypp) should
+be specified.
+
+Alternativelty, these packages will be fetched as subprojects from
+their respectitve repositories.
+
 ### Preprocessing
 
 The source code uses the [fypp](https://github.com/aradi/fypp)
