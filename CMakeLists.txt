@@ -72,6 +72,12 @@ dnaoad_setup_build_type("RelWithDebInfo")
 
 include(subprojects/fypp.cmake)
 
+# Checks version reported by fypp
+execute_process(COMMAND ${FYPP} --version
+                  OUTPUT_VARIABLE fypp_VERSION_RAW_OUTPUT)
+string(STRIP ${fypp_VERSION_RAW_OUTPUT} fypp_VERSION_OUTPUT)
+#message(STATUS "Fypp version detected : ${fypp_VERSION_OUTPUT}")
+
 # Extra flags from cmake options and compiler capabilities
 dnaoad_add_fypp_defines(FYPP_FLAGS)
 
@@ -80,8 +86,17 @@ set(FYPP_FLAGS "${FYPP_FLAGS}")
 set(FYPP_CONFIG_FLAGS "${FYPP_FLAGS}")
 # Make sure, the line-marker option is not set
 list(REMOVE_ITEM FYPP_CONFIG_FLAGS "-n")
-set(FYPP_BUILD_FLAGS "${FYPP_FLAGS}" #"--file-var-root=${CMAKE_SOURCE_DIR}"
-  "$<IF:$<CONFIG:Debug>,-DDEBUG=1,-DDEBUG=0>")
+if (${fypp_VERSION_OUTPUT} MATCHES "fypp 3.1")
+  set(FYPP_BUILD_FLAGS "${FYPP_FLAGS}"
+    "$<IF:$<CONFIG:Debug>,-DDEBUG=1,-DDEBUG=0>")
+  message(STATUS "Using fypp 3.1 for preprocessing")
+elseif (${fypp_VERSION_OUTPUT} MATCHES "fypp 3.2")
+  set(FYPP_BUILD_FLAGS "${FYPP_FLAGS}" "--file-var-root=${CMAKE_SOURCE_DIR}"
+    "$<IF:$<CONFIG:Debug>,-DDEBUG=1,-DDEBUG=0>")
+    message(STATUS "Using fypp 3.2 for preprocessing")
+else ()
+  message(ERROR " unsupported ${fypp_VERSION_OUTPUT} version")
+endif ()
 
 set(PYTHON_INTERPRETER "python3" CACHE STRING
   "Python interpreter to use for preprocessor")
