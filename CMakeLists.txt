@@ -2,7 +2,7 @@
 #                       Basic project definition                              #
 ]=============================================================================]
 
-cmake_minimum_required(VERSION 3.22...3.29)
+cmake_minimum_required(VERSION 3.24...3.29)
 
 list(APPEND CMAKE_MESSAGE_CONTEXT DNAOAD)
 
