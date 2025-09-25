@@ -425,10 +425,13 @@ contains
 
   end subroutine initialize_dual_${label}$${bits}$
 
+  !> Returns the derivative order the dual number handles
   pure function dual_${name}$${bits}$_order(this) result(order_value)
 
+    !> Dual number
     class(dual_${name}$${bits}$), intent(in) :: this
 
+    !> Derivative order, starting from 0th order
     integer :: order_value
 
     order_value = size(this%f) - 1
