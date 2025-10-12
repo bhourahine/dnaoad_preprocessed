@@ -1957,10 +1957,11 @@ contains
 #:endif
 
 
-#:for op in [("sin"), ("cos"), ("tan")]
+#:for op in [("sind"), ("cosd"), ("tand")]
+#:set func = op[:-1]
 
-  !> ${op}$ function of a dual number in degrees
-  elemental function ${op}$d_${label}$${bits}$(g) result(fr)
+  !> ${func}$ function of a dual number in degrees
+  elemental function ${op}$_${label}$${bits}$(g) result(fr)
 
     !> Dual number
     type(dual_${name}$${bits}$), intent(in) :: g
@@ -1974,19 +1975,20 @@ contains
     call initialize_dual(fr, order)
 
 #:if type == "complex"
-    fr = ${op}$(g * cmplx(Pi_${bits}$ / 180.0_real${bits}$, 0.0, kind=real${bits}$))
+    fr = ${func}$(g * cmplx(Pi_${bits}$ / 180.0_real${bits}$, 0.0, kind=real${bits}$))
 #:else
-    fr = ${op}$(Pi_${bits}$ * g / 180.0_real${bits}$)
+    fr = ${func}$(Pi_${bits}$ * g / 180.0_real${bits}$)
 #:endif
 
-  end function ${op}$d_${label}$${bits}$
+  end function ${op}$_${label}$${bits}$
 
 #:endfor
 
-#:for op in [("asin"), ("acos"), ("atan")]
+#:for op in [("asind"), ("acosd"), ("atand")]
+#:set func = op[:-1]
 
-  !> ${op}$ function of a dual number, returning in degrees
-  elemental function ${op}$d_${label}$${bits}$(g) result(fr)
+  !> ${func}$ function of a dual number, returning in degrees
+  elemental function ${op}$_${label}$${bits}$(g) result(fr)
 
     !> Dual number
     type(dual_${name}$${bits}$), intent(in) :: g
@@ -1999,7 +2001,7 @@ contains
     order = g%order()
     call initialize_dual(fr, order)
 
-    fr = ${op}$(g)
+    fr = ${func}$(g)
 
 #:if type == "complex"
     fr = fr * cmplx(Pi_${bits}$ / 180.0_real${bits}$, 0.0, kind=real${bits}$)
@@ -2007,7 +2009,7 @@ contains
     fr = fr * Pi_${bits}$ / 180.0_real${bits}$
 #:endif
 
-  end function ${op}$d_${label}$${bits}$
+  end function ${op}$_${label}$${bits}$
 
 #:endfor
 
